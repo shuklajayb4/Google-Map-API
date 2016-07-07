@@ -2,7 +2,7 @@
     <wb-module deploy-name="CrunchifyJSPServletExample">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
-        <property name="context-root" value="CrunchifyJSPServletExample"/>
         <property name="java-output-path" value="/CrunchifyJSPServletExample/WebContent/WEB-INF/classes"/>
+        <property name="context-root" value="CrunchifyJSPServletExample2"/>
     </wb-module>
 </project-modules>

@@ -1,120 +1,182 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
-
-        
-    
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Google Maps</title>
+  <head>
+    <title>Navigation functions (heading)</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+      #floating-panel {
+        position: absolute;
+        top: 10px;
+        left: 25%;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+        text-align: center;
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+<!--     <div id="floating-panel"> -->
+<!--       Origin: <input type="text" readonly id="origin"> -->
+<!--       Destination: <input type="text" readonly id="destination"><br> -->
+<!--       Heading: <input type="text" readonly id="heading"> degrees -->
+<!--     </div> -->
+    <script>
+      // This example requires the Geometry library. Include the libraries=geometry
+      // parameter when you first load the API. For example:
 
-<style>
-     html, body, #map-canvas {
-         height: 100%;
-         width: 100%;
-         margin: 0px;
-         padding: 0px
-     }
- </style>
-<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCE2B2QxDXntesD2VvQiRehzjZAve84zBI"></script>
+//       var sources = new Array(2);
+//       var destinations = new Array(2);
+      
+//       sources = [["34.052235", "-118.243683"], ["44.986656", "-93.258133"]];
+//       destinations = [ ["41.8781", "-87.6298"], ["40.7128", "-74.0059"]];
 
-<script>
-var map;
-
-var latitude1 = '${latitude1}';
-var longitude1 = '${longitude1}';
-
-//latitude1 = parseFloat(latitude1);
-//longitude1 = parseFloat(longitude1);
-
-var latitude2 = '${latitude2}';
-var longitude2 = '${longitude2}';
-
-//latitude2 = parseFloat(latitude2);
-//longitude2 = parseFloat(longitude2);
-
-function init() {
-	var startLatLng = new google.maps.LatLng(parseFloat(latitude1), parseFloat(longitude1)); // LAX
-    var endLatLng = new google.maps.LatLng(parseFloat(latitude2), parseFloat(longitude2)); // MSP
 	
-	//var startLatLng = new google.maps.LatLng(34.052235, -118.243683); //LAX
-    //var endLatLng = new google.maps.LatLng(44.986656, -93.258133); // MSP
+      var sources = [];
+      var destinations = [];
+      
+      sources = [["34.052235", "-118.243683"], ["44.986656","-93.258133"]];
+      destinations = [["41.8781", "-87.6298"], ["40.7128", "-74.0059"]];
+     	 
+     alert(sources.length);
+     alert(destinations.length);
+     
+     for(var i=0;i<sources.length;i++)
+     {
+    	 alert(sources[i][0]);
+    	 alert(sources[i][1]);
+    	 
+    	 alert(destinations[i][0]);
+    	 alert(destinations[i][1]);
+     }
+     
+      var marker1 = [];
+      var marker2 = [];
+      var bounds = [];
+	
+// 	  var marker1, marker2;
+      var poly, geodesicPoly;
 
-    map = new google.maps.Map(document.getElementById('map-canvas'), {
-        center: startLatLng,
-        zoom: 5
-    });
-
-    //var p1 = new google.maps.LatLng(23.634501, -102.552783);
-    //var p2 = new google.maps.LatLng(17.987557, -92.929147);
-
-    //var p1 = new google.maps.LatLng(34.052235, -118.243683); // LAX
-    //var p2 = new google.maps.LatLng(44.986656, -93.258133); //MSP
-
-    var bounds = new google.maps.LatLngBounds();
-    bounds.extend(startLatLng);
-    bounds.extend(endLatLng);
-    map.fitBounds(bounds);
-    var markerP1 = new google.maps.Marker({
-        position: startLatLng,
-
-        map: map
-    });
-    var markerP2 = new google.maps.Marker({
-        position: endLatLng,
-        map: map
-    });
-    google.maps.event.addListener(map, 'projection_changed', function () {
-        var startLatLng = map.getProjection().fromLatLngToPoint(markerP1.getPosition());
-        var endLatLng = map.getProjection().fromLatLngToPoint(markerP2.getPosition());
-        var e = new google.maps.Point(startLatLng.x - endLatLng.x, startLatLng.y - endLatLng.y);
-        var m = new google.maps.Point(e.x / 2, e.y / 2);
-        var o = new google.maps.Point(0, 7);
-        var c = new google.maps.Point(m.x + o.x, m.y + o.y);
-        var curveMarker2 = new google.maps.Marker({
-            position: markerP1.getPosition(),
-            icon: {
-                path: "M 0 0 q " + c.x + " " + c.y + " " + e.x + " " + e.y,
-                scale: 24,
-                strokeWeight: 2,
-                fillColor: '#009933',
-                fillOpacity: 0,
-                rotation: 180,
-                anchor: new google.maps.Point(0, 0)
-            }
+      function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 4,
+          center: {lat: sources[0][0], lng: sources[0][1]}
         });
-        curveMarker2.setMap(map);
-        google.maps.event.addListener(map, 'zoom_changed', function () {
-            var zoom = map.getZoom();
-            var scale = 1 / (Math.pow(2, -zoom));
-            var icon = {
-                path: "M 0 0 q " + c.x + " " + c.y + " " + e.x + " " + e.y,
-                scale: scale,
-                strokeWeight: 2,
-                fillColor: '#009933',
-                fillOpacity: 0,
-                rotation: 180,
-                anchor: new google.maps.Point(0, 0)
-            };
-            curveMarker2.setIcon(icon);
-        });
-        3
-    });
-}
 
-google.maps.event.addDomListener(window, 'load', init);
-</script>
+        map.controls[google.maps.ControlPosition.TOP_CENTER].push(
+           document.getElementById('info'));
 
-</head>
-<body>
-<%-- <blockquote>New Latitude1: <b> <%= request.getAttribute("latitude1") %> </b></blockquote>
-<blockquote>New Longitude1: <b> <%= request.getAttribute("longitude1") %> </b></blockquote>
+        for(var i=0;i<sources.length;i++)
+        {
+        	marker1[i] = new google.maps.Marker({
+                map: map,
+                draggable: true,
+                position: {lat: parseFloat(sources[i][0]), lng: parseFloat(sources[i][1])}
+              });
+        	
+        	marker2[i] = new google.maps.Marker({
+                map: map,
+                draggable: true,
+                position: {lat: parseFloat(destinations[i][0]), lng: parseFloat(destinations[i][1])}
+              });
+        	
+        	bounds[i] = new google.maps.LatLngBounds(marker1[i].getPosition(), marker2[i].getPosition());
+        	map.fitBounds(bounds[i]);
+        	
+        	google.maps.event.addListener(marker1[i], 'position_changed', update);
+	        google.maps.event.addListener(marker2[i], 'position_changed', update);
+	        
+	         poly = new google.maps.Polyline({
+	            strokeColor: '#FF0000',
+	            strokeOpacity: 5.0,
+	            strokeWeight: 3,
+	            geodesic: true,
+	            map: map
+	          });
 
-<blockquote>New Latitude2: <b> <%= request.getAttribute("latitude2") %> </b></blockquote>
-<blockquote>New Longitude2: <b> <%= request.getAttribute("longitude2") %> </b></blockquote> --%>
+	          geodesicPoly = new google.maps.Polyline({
+	            strokeColor: '#CC0099',
+	            strokeOpacity: 1.0,
+	            strokeWeight: 3,
+	            map: map
+	          });
 
-<div id="map-canvas" style="border: 2px solid #3872ac;"></div>
+	          update();
+	        }
+        
 
-</body>
+	        function update()
+	        {
+	        	 var path = [marker1[i].getPosition(), marker2[i].getPosition()];
+	    	     poly.setPath(path);
+	    	     geodesicPoly.setPath(path);	        	
+	        }    
+		        
+        }        
+      
+//         marker1 = new google.maps.Marker({
+//           map: map,
+//           draggable: true,
+//           position: {lat: 40.714, lng: -74.006}
+//         });
+       
+//         marker2 = new google.maps.Marker({
+//           map: map,
+//           draggable: true,
+//           position: {lat: 48.857, lng: 2.352}
+//         });
+		
+// 		   var bounds = new google.maps.LatLngBounds(
+//         marker1.getPosition(), marker2.getPosition());
+//         map.fitBounds(bounds);
+		
+		
+// 		google.maps.event.addListener(marker1, 'position_changed', update);
+//         google.maps.event.addListener(marker2, 'position_changed', update);
+
+//         poly = new google.maps.Polyline({
+//           strokeColor: '#FF0000',
+//           strokeOpacity: 5.0,
+//           strokeWeight: 3,
+//           geodesic: true,
+//           map: map
+//         });
+
+//         geodesicPoly = new google.maps.Polyline({
+//           strokeColor: '#CC0099',
+//           strokeOpacity: 1.0,
+//           strokeWeight: 3,
+//           map: map
+//         });
+
+//         update();
+//       }
+
+//       function update()
+//       {
+//    		    var path = [marker1[i].getPosition(), marker2[i].getPosition()];
+//     	    poly.setPath(path);
+//     	    geodesicPoly.setPath(path);
+//    	    var heading = google.maps.geometry.spherical.computeHeading(path[0], path[1]);
+//    	    document.getElementById('heading').value = heading;
+//    	    document.getElementById('origin').value = path[0].toString();
+//    	    document.getElementById('destination').value = path[1].toString();
+//       }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCE2B2QxDXntesD2VvQiRehzjZAve84zBI&libraries=geometry&callback=initMap"></script>
+  </body>
 </html>

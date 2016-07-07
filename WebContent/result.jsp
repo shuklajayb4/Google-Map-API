@@ -1,3 +1,4 @@
+<%@ page import="java.util.ArrayList"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 
@@ -16,6 +17,32 @@
 
 <blockquote>Latitude2: <b> <%= request.getAttribute("latitude2") %> </b></blockquote>
 <blockquote>Longitude2: <b> <%= request.getAttribute("longitude2") %> </b></blockquote>
+
+
+<%
+	if(request.getAttribute("longitudeArr") != null && request.getAttribute("longitudeArr") != null)
+	{
+		
+		String[] latitudeArr = (String[]) request.getAttribute("latitudeArr");
+		String[] longitudeArr = (String[]) request.getAttribute("longitudeArr");
+		 
+				
+		int countlatitudeArr = latitudeArr.length;
+		int countlongitudeArr = longitudeArr.length;
+		
+		if(countlatitudeArr != 0 && countlongitudeArr != 0 && countlatitudeArr == countlongitudeArr)
+		{
+			for(int i = 0; i < countlatitudeArr; i++)
+			{
+				System.out.println("Lat : " + latitudeArr[i]);
+				System.out.println("Lng : " + longitudeArr[i]);
+			}
+		}
+	}
+	
+
+%>
+
 
 <%
 	RequestDispatcher reqdisp= request.getRequestDispatcher("newresult.jsp");
